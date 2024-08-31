@@ -48,9 +48,11 @@ return {
 		-- set keymaps
 		local keymap = vim.keymap -- for conciseness
 
-		local api = require "nvim-tree.api"
-		keymap.set("n", "<leader>ee", api.tree.open, { desc = "Toggle file explorer" }) -- toggle file explorer
-		keymap.set("n", "<leader>ec", api.tree.close,{ desc = "Collapse file explorer" }) -- collapse file explorer
+		local api = require("nvim-tree.api")
+		keymap.set("n", "<leader>ee", function()
+			api.tree.open({ find_file = true })
+		end, { desc = "Toggle file explorer" }) -- toggle file explorer
+		keymap.set("n", "<leader>ec", api.tree.close, { desc = "Collapse file explorer" }) -- collapse file explorer
 		keymap.set("n", "<leader>er", "<cmd>NvimTreeRefresh<CR>", { desc = "Refresh file explorer" }) -- refresh file explorer
-	end
+	end,
 }
