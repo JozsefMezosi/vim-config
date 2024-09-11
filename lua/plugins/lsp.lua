@@ -3,12 +3,20 @@ return {
 	dependencies = {
 		"williamboman/mason.nvim",
 		"williamboman/mason-lspconfig.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-buffer",
 		"hrsh7th/cmp-path",
 		"hrsh7th/cmp-cmdline",
 		"hrsh7th/nvim-cmp",
-		"L3MON4D3/LuaSnip",
+		{
+			"L3MON4D3/LuaSnip",
+			-- follow latest release.
+			version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+			-- install jsregexp (optional!).
+			build = "make install_jsregexp",
+		},
+		"rafamadriz/friendly-snippets",
 		"saadparwaiz1/cmp_luasnip",
 		"j-hui/fidget.nvim",
 	},
@@ -27,7 +35,6 @@ return {
 		require("mason").setup()
 		require("mason-lspconfig").setup({
 			ensure_installed = {
-				"prettier",
 				"lua_ls",
 				"tsserver",
 				"html",
@@ -37,6 +44,9 @@ return {
 			},
 			handlers = {
 				function(server_name) -- default handler (optional)
+					if server_name == "tsserver" then
+						server_name = "ts_ls"
+					end
 					require("lspconfig")[server_name].setup({
 						capabilities = capabilities,
 					})
@@ -56,6 +66,15 @@ return {
 						},
 					})
 				end,
+			},
+		})
+		local mason_tool_installer = require("mason-tool-installer")
+
+		mason_tool_installer.setup({
+			ensure_installed = {
+				"prettier", -- prettier formatter
+				"stylua", -- lua formatter
+				"eslint_d",
 			},
 		})
 
@@ -98,6 +117,7 @@ return {
 				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
 			end,
 		})
+		require("luasnip.loaders.from_vscode").lazy_load()
 		cmp.setup({
 			snippet = {
 				expand = function(args)
@@ -112,9 +132,9 @@ return {
 			}),
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
-				{ name = "luasnip" }, -- For luasnip users.
-			}, {
-				{ name = "buffer" },
+				{ name = "luasnip" }, -- snippets
+				{ name = "buffer" }, -- text within current buffer
+				{ name = "path" }, -- file system paths
 			}),
 		})
 
